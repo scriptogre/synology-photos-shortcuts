@@ -1,0 +1,127 @@
+// Helper to find a button by selector and text
+function findButton(selector, text) {
+  const buttons = document.querySelectorAll(selector);
+  for (const button of buttons) {
+    const buttonText = button.querySelector('.button-text')?.textContent.trim();
+    if (buttonText === text) return button;
+  }
+  return null;
+}
+
+// Action: Select All (Ctrl + A)
+function selectAll() {
+  const checkboxes = document.querySelectorAll('.synofoto-selectable-checkbox');
+  if (checkboxes.length === 0) return;
+
+  const allSelected = Array.from(checkboxes).every(cb => cb.classList.contains('checked'));
+
+  if (allSelected) {
+    const deselectButton = document.querySelector('.synofoto-icon-button[data-tooltip-content="Cancel"]');
+    if (deselectButton) {
+      deselectButton.click();
+      return;
+    }
+  }
+
+  checkboxes.forEach(cb => {
+    if (!cb.classList.contains('checked')) cb.click();
+  });
+}
+
+// Action: Add Tags (Shift + T)
+function addTags() {
+  const editTagsButton = findButton('button.synofoto-menu-text-button', 'Edit tags');
+  if (editTagsButton) {
+    editTagsButton.click();
+  } else {
+    const infoButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tooltip-content="Information"]');
+    if (infoButton) {
+      infoButton.click();
+      setTimeout(() => {
+        const input = document.querySelector('.synofoto__input[placeholder*="tags"]');
+        if (input) input.focus();
+      }, 50);
+    }
+  }
+}
+
+// Action: Rotate (Shift + R)
+function rotate() {
+  const rotateButton = findButton('.synofoto-menu-text-button', 'Rotate');
+  if (rotateButton) rotateButton.click();
+}
+
+// Action: Add to Album (Shift + A)
+function addToAlbum() {
+  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tooltip-content="Add to Album"]');
+  if (selectionButton) {
+    selectionButton.click();
+  } else {
+    const lightboxButton = findButton('.synofoto-menu-text-button', 'Add to album');
+    if (lightboxButton) lightboxButton.click();
+  }
+}
+
+// Action: Open Delete Dialog (Shift + Delete or Shift + Back NORMSPACE)
+function deleteDialog() {
+  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tooltip-content="Delete"]');
+  if (selectionButton) {
+    selectionButton.click();
+  } else {
+    const lightboxButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tooltip-content="Delete"]');
+    if (lightboxButton) lightboxButton.click();
+  }
+}
+
+// Action: Download (Shift + D)
+function download() {
+  const selectViewDownloadButton = findButton('.synofoto-menu-text-button', 'Original')
+  if (selectViewDownloadButton) {
+    selectViewDownloadButton.click();
+  }
+}
+
+// Action: Change View (Shift + Tab)
+function changeView() {
+  const changeViewButton = document.querySelector('.synofoto-change-view-btn');
+  if (changeViewButton) {
+    changeViewButton.click();
+  }
+}
+
+// Map key to actions (Shift + {Key})
+const actions = {
+  'T': addTags,
+  'R': rotate,
+  'A': addToAlbum,
+  'D': download,
+  'Tab': changeView,
+  'Delete': deleteDialog,
+  'Backspace': deleteDialog,
+};
+
+// Add the keydown event listener
+document.addEventListener('keydown', (event) => {
+  if (
+      event.target.tagName === 'INPUT'
+      || event.target.tagName === 'TEXTAREA'
+      || event.target.isContentEditable
+  ) return;
+
+  if (event.shiftKey) {
+    const action = actions[event.key];
+    if (action) {
+      event.preventDefault();
+      action();
+    }
+  }
+
+  // Select All shortcut
+  // Cmd + A on Mac, CTRL + A on Windows
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  const selectAllKey = isMac ? event.metaKey : event.ctrlKey;
+  if (selectAllKey && event.key === 'a') {
+    event.preventDefault(); // Prevent the default browser "select all" behavior
+    selectAll(); // Run our custom "Select All" function
+  }
+}, true);
