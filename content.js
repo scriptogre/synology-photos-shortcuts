@@ -89,6 +89,15 @@ function changeView() {
   }
 }
 
+// Action: Rate Photo (1-5 keys for 1-5 stars)
+function ratePhoto(rating) {
+  // Find the rating stars; assuming they are in order and clickable to set rating
+  const stars = document.querySelectorAll('.synofoto-icon-button-rating');
+  if (stars.length >= rating) {
+    stars[rating - 1].click(); // Click the nth star to set to n stars
+  }
+}
+
 // Map key to actions (Shift + {Key})
 const actions = {
   'T': addTags,
@@ -123,5 +132,11 @@ document.addEventListener('keydown', (event) => {
   if (selectAllKey && event.key === 'a') {
     event.preventDefault(); // Prevent the default browser "select all" behavior
     selectAll(); // Run our custom "Select All" function
+  }
+
+  // Rating shortcuts
+  if (event.key >= '1' && event.key <= '5' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    event.preventDefault();
+    ratePhoto(parseInt(event.key));
   }
 }, true);
