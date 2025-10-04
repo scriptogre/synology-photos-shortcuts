@@ -15,5 +15,6 @@ Synology didn’t add them. This extension does.
 - `Shift + T`: Add tags
 - `Shift + A`: Add to album
 - `Shift + Tab`: Switch folder / timeline view
+- (NEW) `1` - `5`: Rate photo (1-5 stars)
 
 If any shortcut stops working, just create an issue on GitHub and I’ll fix it as soon as I can.
