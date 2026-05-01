@@ -10,6 +10,7 @@ Synology didn’t add them. This extension does.
 
 - `Cmd + A` (Mac) / `Ctrl + A` (Windows): Select all
 - `Shift + Delete` / `Shift + Backspace`: Delete photo (with confirmation)
+- `Ctrl + Delete`: Directly delete photo (without confirmation)
 - `Shift + R`: Rotate clockwise
 - `Shift + D`: Download (original, not compressed)
 - `Shift + T`: Add tags
@@ -18,3 +19,4 @@ Synology didn’t add them. This extension does.
 - (NEW) `1` - `5`: Rate photo (1-5 stars)
 
 If any shortcut stops working, just create an issue on GitHub and I’ll fix it as soon as I can.
+

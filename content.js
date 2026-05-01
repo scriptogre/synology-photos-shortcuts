@@ -16,7 +16,7 @@ function selectAll() {
   const allSelected = Array.from(checkboxes).every(cb => cb.classList.contains('checked'));
 
   if (allSelected) {
-    const deselectButton = document.querySelector('.synofoto-icon-button[data-tooltip-content="Cancel"]');
+    const deselectButton = document.querySelector('.synofoto-icon-button[data-tip="Cancel"]');
     if (deselectButton) {
       deselectButton.click();
       return;
@@ -34,15 +34,17 @@ function addTags() {
   if (editTagsButton) {
     editTagsButton.click();
   } else {
-    const infoButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tooltip-content="Information"]');
-    if (infoButton) {
-      infoButton.click();
-      setTimeout(() => {
-        const input = document.querySelector('.synofoto__input[placeholder*="tags"]');
-        if (input) input.focus();
-      }, 50);
+    const input = document.querySelector('input[placeholder="Add tags"]');
+    // Is the input field visible?
+    if (!input) {
+      const infoButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tip="Information"]');
+      if (infoButton) infoButton.click();
     }
   }
+  setTimeout(() => {
+    const input = document.querySelector('input[placeholder="Add tags"]');
+    if (input) input.focus();
+  }, 50);
 }
 
 // Action: Rotate (Shift + R)
@@ -53,7 +55,7 @@ function rotate() {
 
 // Action: Add to Album (Shift + A)
 function addToAlbum() {
-  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tooltip-content="Add to Album"]');
+  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tip="Add to Album"]');
   if (selectionButton) {
     selectionButton.click();
   } else {
@@ -64,20 +66,48 @@ function addToAlbum() {
 
 // Action: Open Delete Dialog (Shift + Delete or Shift + Back NORMSPACE)
 function deleteDialog() {
-  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tooltip-content="Delete"]');
+  const selectionButton = document.querySelector('.synofoto-selected-bar-button[data-tip="Delete"]');
   if (selectionButton) {
     selectionButton.click();
   } else {
-    const lightboxButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tooltip-content="Delete"]');
+    const lightboxButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tip="Delete"]');
     if (lightboxButton) lightboxButton.click();
   }
 }
 
+// Action: Direct Delete (Ctrl + Delete) - Delete without confirmation
+function directDelete() {
+  // First, open the delete dialog
+  deleteDialog();
+
+  // Wait for the confirmation dialog to appear, then click the confirmation button
+  const maxAttempts = 20; // Try for up to 2 seconds (20 * 100ms)
+  let attempts = 0;
+
+  const confirmDelete = setInterval(() => {
+    // Look for the delete button in the confirmation dialog
+    const confirmButton = document.querySelector('.synofoto-text-button-red');
+
+    if (confirmButton) {
+      confirmButton.click();
+      clearInterval(confirmDelete);
+    } else if (attempts >= maxAttempts) {
+      clearInterval(confirmDelete);
+    }
+    attempts++;
+  }, 100);
+}
+
 // Action: Download (Shift + D)
 function download() {
-  const selectViewDownloadButton = findButton('.synofoto-menu-text-button', 'Original')
+  const selectViewDownloadButton = findButton('.synofoto-menu-text-button', 'Download')
   if (selectViewDownloadButton) {
     selectViewDownloadButton.click();
+  } else {
+    const selectViewDownloadButton = document.querySelector('.synofoto-icon-button[data-tip="Download"]')
+    if (selectViewDownloadButton) {
+      selectViewDownloadButton.click();
+    }
   }
 }
 
@@ -91,11 +121,19 @@ function changeView() {
 
 // Action: Rate Photo (1-5 keys for 1-5 stars)
 function ratePhoto(rating) {
-  // Find the rating stars; assuming they are in order and clickable to set rating
-  const stars = document.querySelectorAll('.synofoto-icon-button-rating');
-  if (stars.length >= rating) {
-    stars[rating - 1].click(); // Click the nth star to set to n stars
+  // Check if ratings stars are visible (right panel is open)
+  const stars_visible = document.querySelectorAll('.synofoto-icon-button-rating');
+  if (stars_visible.length === 0) {
+    const infoButton = document.querySelector('.synofoto-lightbox-toolbar-right-button[data-tip="Information"]');
+    if (infoButton) infoButton.click();
   }
+  setTimeout(() => {
+    // Find the rating stars; assuming they are in order and clickable to set rating
+    const stars = document.querySelectorAll('.synofoto-icon-button-rating');
+    if (stars.length >= rating) {
+      stars[rating - 1].click(); // Click the nth star to set to n stars
+    }
+  }, 50);
 }
 
 // Map key to actions (Shift + {Key})
@@ -117,6 +155,15 @@ document.addEventListener('keydown', (event) => {
       || event.target.isContentEditable
   ) return;
 
+//  console.log('key stroke:', event.key);
+
+  // Force Delete shortcut (Ctrl + Delete)
+  if (event.ctrlKey && event.key === 'Delete') {
+    event.preventDefault();
+    directDelete();
+    return;
+  }
+
   if (event.shiftKey) {
     const action = actions[event.key];
     if (action) {
@@ -135,7 +182,7 @@ document.addEventListener('keydown', (event) => {
   }
 
   // Rating shortcuts
-  if (event.key >= '1' && event.key <= '5' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+  if (event.key >= '1' && event.key <= '5' && !event.ctrlKey && !event.metaKey && !event.altKey) {
     event.preventDefault();
     ratePhoto(parseInt(event.key));
   }
