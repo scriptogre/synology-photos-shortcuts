@@ -98,6 +98,67 @@ function ratePhoto(rating) {
   }
 }
 
+// --- Album dialog navigation ---
+
+let _albumNavIndex = -1;
+
+function getAlbumItems() {
+  return Array.from(document.querySelectorAll(
+    '.synofoto-album-list-item, .synofoto-album-list-item-selected'
+  )).filter(item => item.querySelector('.synofoto-album-list-name'));
+}
+
+function isAlbumDialogOpen() {
+  return getAlbumItems().length > 0;
+}
+
+function selectAlbumItem(item) {
+  item.click();
+  item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+
+function navigateAlbumByLetter(letter) {
+  const items = getAlbumItems();
+  if (items.length === 0) return false;
+
+  const names = items.map(item =>
+    item.querySelector('.synofoto-album-list-name').textContent.trim().toLowerCase()
+  );
+  const lowerLetter = letter.toLowerCase();
+
+  let targetIndex = names.findIndex(name => name.startsWith(lowerLetter));
+  if (targetIndex === -1) {
+    targetIndex = names.findIndex(name => name > lowerLetter);
+  }
+  if (targetIndex === -1) targetIndex = 0;
+
+  _albumNavIndex = targetIndex;
+  selectAlbumItem(items[targetIndex]);
+  return true;
+}
+
+function navigateAlbumByArrow(direction) {
+  const items = getAlbumItems();
+  if (items.length === 0) { _albumNavIndex = -1; return false; }
+
+  if (_albumNavIndex === -1) {
+    _albumNavIndex = direction === 'down' ? 0 : items.length - 1;
+  } else {
+    _albumNavIndex = direction === 'down' ? _albumNavIndex + 1 : _albumNavIndex - 1;
+    _albumNavIndex = ((_albumNavIndex % items.length) + items.length) % items.length;
+  }
+
+  selectAlbumItem(items[_albumNavIndex]);
+  return true;
+}
+
+// Action: Confirm OK dialog (Enter)
+function confirmOk() {
+  const okButton = findButton('button.synofoto-text-button', 'OK');
+  if (okButton) { okButton.click(); return true; }
+  return false;
+}
+
 // Map key to actions (Shift + {Key})
 const actions = {
   'T': addTags,
@@ -117,6 +178,20 @@ document.addEventListener('keydown', (event) => {
       || event.target.isContentEditable
   ) return;
 
+  // Album dialog navigation — intercept before all other shortcuts
+  if (isAlbumDialogOpen() && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      navigateAlbumByArrow(event.key === 'ArrowDown' ? 'down' : 'up');
+      return;
+    }
+    if (event.key.length === 1 && /[a-zA-Z]/.test(event.key)) {
+      event.preventDefault();
+      navigateAlbumByLetter(event.key);
+      return;
+    }
+  }
+
   if (event.shiftKey) {
     const action = actions[event.key];
     if (action) {
@@ -132,6 +207,12 @@ document.addEventListener('keydown', (event) => {
   if (selectAllKey && event.key === 'a') {
     event.preventDefault(); // Prevent the default browser "select all" behavior
     selectAll(); // Run our custom "Select All" function
+  }
+
+  // Confirm OK dialog
+  if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    const handled = confirmOk();
+    if (handled) event.preventDefault();
   }
 
   // Rating shortcuts
