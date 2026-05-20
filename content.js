@@ -159,12 +159,19 @@ function confirmOk() {
   return false;
 }
 
+// Action: Tag People (Shift + P)
+function tagPeople() {
+  const button = findButton('button.synofoto-menu-text-button', 'Tag people');
+  if (button) button.click();
+}
+
 // Map key to actions (Shift + {Key})
 const actions = {
   'T': addTags,
   'R': rotate,
   'A': addToAlbum,
   'D': download,
+  'P': tagPeople,
   'Tab': changeView,
   'Delete': deleteDialog,
   'Backspace': deleteDialog,
