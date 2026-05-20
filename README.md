@@ -15,6 +15,11 @@ Synology didn’t add them. This extension does.
 - `Shift + T`: Add tags
 - `Shift + A`: Add to album
 - `Shift + Tab`: Switch folder / timeline view
-- (NEW) `1` - `5`: Rate photo (1-5 stars)
+- `1` - `5`: Rate photo (1-5 stars)
+
+**Inside the Add to Album dialog:**
+- `a`-`z`: Jump to the first album starting with that letter (or the next alphabetically if none match)
+- `↑` / `↓`: Navigate albums (wraps from last to first and vice versa) — each album is selected as you land on it
+- `Enter`: Confirm add to Album (click OK)
 
 If any shortcut stops working, just create an issue on GitHub and I’ll fix it as soon as I can.
