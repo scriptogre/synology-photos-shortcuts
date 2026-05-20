@@ -98,6 +98,16 @@ function ratePhoto(rating) {
   }
 }
 
+// Action: Confirm OK dialog (Enter)
+function confirmOk() {
+  const button = findButton('button.synofoto-text-button', 'OK');
+  if (button) {
+    button.click();
+    return true;
+  }
+  return false;
+}
+
 // Map key to actions (Shift + {Key})
 const actions = {
   'T': addTags,
@@ -116,6 +126,11 @@ document.addEventListener('keydown', (event) => {
       || event.target.tagName === 'TEXTAREA'
       || event.target.isContentEditable
   ) return;
+
+  // Enter (no modifiers) → confirm OK dialog if present
+  if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+    if (confirmOk()) event.preventDefault();
+  }
 
   if (event.shiftKey) {
     const action = actions[event.key];
