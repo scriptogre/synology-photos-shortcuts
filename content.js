@@ -200,7 +200,8 @@ document.addEventListener('keydown', (event) => {
   }
 
   if (event.shiftKey) {
-    const action = actions[event.key];
+    const key = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+    const action = actions[key];
     if (action) {
       event.preventDefault();
       action();
