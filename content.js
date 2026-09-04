@@ -119,8 +119,18 @@ const actions = {
   'Backspace': deleteDialog,
 };
 
+// The extension injects into every page (Synology NAS URLs vary per user, so
+// there's no fixed URL pattern to scope the content script to). Only act if
+// this page is actually a Synology Photos app instance, otherwise the global
+// listener below would swallow keystrokes (e.g. Shift+T) on unrelated tabs.
+function isSynologyPhotosPage() {
+  return !!document.querySelector('[class*="synofoto"]');
+}
+
 // Add the keydown event listener
 document.addEventListener('keydown', (event) => {
+  if (!isSynologyPhotosPage()) return;
+
   if (
       event.target.tagName === 'INPUT'
       || event.target.tagName === 'TEXTAREA'
